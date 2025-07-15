@@ -26,11 +26,7 @@ block1 = obj.block(2, 2)  # 石头方块
 block2 = obj.block(6, 3)  # 木头方块
 block3 = obj.block(4, 8)  # 石头方块
 block4 = obj.block(2, 5)  # 石头方块
-# air1 = obj.Air(4, 4)  # 空气
-# air2 = obj.Air(3, 4, )  # 空气
-# air3 = obj.Air(5, 4, )  # 空气
-# air4 = obj.Air(4, 3, )  # 空气
-# air5 = obj.Air(4, 5, )  # 空气
+
 #创建对象管理器
 object_manager = mgr.GameObjectManager()
 

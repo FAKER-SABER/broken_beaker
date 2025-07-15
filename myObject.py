@@ -17,7 +17,12 @@ class GridMap:
         self.rows = height // cell_size
         self.grid = [[[] for _ in range(self.columns)] for _ in range(self.rows)]
         self.type = "map"
+        self.zoom_level = 1.0
+        self.min_zoom = 0.5
+        self.max_zoom = 2.0
 
+        self.view_offset_x=0
+        self.view_offset_y=0
         print("GridMap created with", self.columns, "columns and", self.rows, "rows")
 
     def add_object(self, obj):
@@ -93,6 +98,48 @@ class GridMap:
                 con = [n2] + other_gases
                 air = Air(x, y, con=con)
                 self.add_object(air)
+
+    def handle_zoom(self, events):
+        for event in events:
+            if event.type == pygame.MOUSEWHEEL:
+                # 根据滚轮方向调整缩放级别
+                self.zoom_level *= 1.1 if event.y > 0 else 0.9
+                self.zoom_level = max(self.min_zoom, min(self.max_zoom, self.zoom_level))
+
+    def draw_with_zoom(self, surface):
+        """考虑缩放的绘制"""
+        for obj in self.get_visible_objects():
+            # 计算缩放后的位置和大小
+            zoomed_x = (obj.x - self.view_offset_x) * self.zoom_level
+            zoomed_y = (obj.y - self.view_offset_y) * self.zoom_level
+            zoomed_width = obj.width * self.zoom_level
+            zoomed_height = obj.height * self.zoom_level
+
+            # 创建缩放后的图像
+            if obj.image:
+                scaled_image = pygame.transform.scale(
+                    obj.image,
+                    (int(zoomed_width), int(zoomed_height))
+                )
+                surface.blit(scaled_image, (zoomed_x, zoomed_y))
+            else:
+                pygame.draw.rect(
+                    surface,
+                    obj.color,
+                    (zoomed_x, zoomed_y, zoomed_width, zoomed_height)
+                )
+    def get_visible_objects(self):
+        """获取可见的对象"""
+        visible_objects = []
+        for row in range(self.view_offset_y // self.cell_size, (self.view_offset_y + self.rows*self.cell_size) // self.cell_size + 1):
+            for col in range(self.view_offset_x // self.cell_size, (self.view_offset_x + self.columns*self.cell_size) // self.cell_size + 1):
+                if 0 <= row < self.rows and 0 <= col < self.columns:
+                    for obj in self.grid[row][col]:
+                        visible_objects.append(obj)
+        return visible_objects
+    def check_Border(self,hero):
+        pass
+
 
 class MyObject:
     def __init__(self, x=0, y=0,cell_size=50):
